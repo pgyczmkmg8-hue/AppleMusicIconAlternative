@@ -38,6 +38,17 @@ cat > "$ICONSET/Contents.json" <<'JSON'
 JSON
 echo '{ "info" : { "author" : "xcode", "version" : 1 } }' > "$OUT/Assets.xcassets/Contents.json"
 
+# black launch screen, so nothing white flashes before music:// takes over
+mkdir -p "$OUT/Assets.xcassets/LaunchBlack.colorset"
+cat > "$OUT/Assets.xcassets/LaunchBlack.colorset/Contents.json" <<'JSON'
+{
+  "colors" : [
+    { "color" : { "color-space" : "srgb", "components" : { "alpha" : "1.000", "blue" : "0.000", "green" : "0.000", "red" : "0.000" } }, "idiom" : "universal" }
+  ],
+  "info" : { "author" : "xcode", "version" : 1 }
+}
+JSON
+
 SDK=$(xcrun --sdk iphoneos --show-sdk-path)
 xcrun --sdk iphoneos swiftc -parse-as-library -O \
 	-target "arm64-apple-ios$MIN_IOS" -sdk "$SDK" \
