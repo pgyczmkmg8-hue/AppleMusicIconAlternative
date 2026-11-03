@@ -1,37 +1,41 @@
 import UIKit
 
-// UIKit only and no scene: SwiftUI is not loaded and nothing waits for a scene to become active,
-// so music:// is requested as soon as the app has launched.
+// UIKit only: SwiftUI is not loaded and nothing waits for a view to render,
+// so music:// is requested as soon as the scene connects. iOS 27 traps apps that
+// do not use the scene lifecycle, so the window lives in a scene delegate.
 @main
-final class AppDelegate: UIResponder, UIApplicationDelegate {
+final class AppDelegate: UIResponder, UIApplicationDelegate {}
+
+@objc(SceneDelegate)
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 	var window: UIWindow?
 	private var pending = false
 	private var done = false
 
-	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+	func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+		guard let windowScene = scene as? UIWindowScene else { return }
 		let controller = UIViewController()
 		controller.view.backgroundColor = .black
-		let window = UIWindow(frame: UIScreen.main.bounds)
+		let window = UIWindow(windowScene: windowScene)
 		window.rootViewController = controller
 		window.makeKeyAndVisible()
 		self.window = window
-		openMusic(application)
-		return true
+		openMusic()
 	}
 
-	// Retries when the request made during launch was not accepted yet, and reopens on every return to the app.
-	func applicationDidBecomeActive(_ application: UIApplication) {
-		openMusic(application)
+	// Retries when the request made while connecting was not accepted yet, and reopens on every return to the app.
+	func sceneDidBecomeActive(_ scene: UIScene) {
+		openMusic()
 	}
 
-	func applicationDidEnterBackground(_ application: UIApplication) {
+	func sceneDidEnterBackground(_ scene: UIScene) {
 		done = false
 	}
 
-	private func openMusic(_ application: UIApplication) {
+	private func openMusic() {
 		guard !done, !pending else { return }
 		pending = true
-		application.open(URL(string: "music://")!, options: [:]) { [weak self] success in
+		UIApplication.shared.open(URL(string: "music://")!, options: [:]) { [weak self] success in
 			self?.pending = false
 			self?.done = success
 		}
