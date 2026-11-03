@@ -50,9 +50,9 @@ cat > "$OUT/Assets.xcassets/LaunchBlack.colorset/Contents.json" <<'JSON'
 JSON
 
 SDK=$(xcrun --sdk iphoneos --show-sdk-path)
-xcrun --sdk iphoneos swiftc -parse-as-library -O \
-	-target "arm64-apple-ios$MIN_IOS" -sdk "$SDK" \
-	Sources/main.swift -o "$APP/MusicLauncher"
+xcrun --sdk iphoneos clang -fobjc-arc -O2 \
+	-target "arm64-apple-ios$MIN_IOS" -isysroot "$SDK" \
+	-framework UIKit Sources/main.m -o "$APP/MusicLauncher"
 
 xcrun actool "$OUT/Assets.xcassets" --compile "$APP" \
 	--platform iphoneos --minimum-deployment-target "$MIN_IOS" \
@@ -76,4 +76,6 @@ chmod 755 "$APP/MusicLauncher"
 codesign --force --sign - --timestamp=none "$APP"
 
 (cd "$OUT" && zip -qry MusicLauncher.ipa Payload)
-echo "Built $OUT/MusicLauncher.ipa ($BUNDLE_ID)"
+# icons only, for people who just want the pictures; attach it to every release
+(cd icons && zip -qr -X "../$OUT/AppleMusicIcons.zip" . -x '.DS_Store')
+echo "Built $OUT/MusicLauncher.ipa ($BUNDLE_ID) and $OUT/AppleMusicIcons.zip"

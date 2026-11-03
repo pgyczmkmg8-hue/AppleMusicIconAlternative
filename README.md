@@ -45,7 +45,7 @@ BUNDLE_ID=com.example.Music ./build.sh
 ## 구성
 
 ```
-Sources/main.swift          SwiftUI 앱 (music:// 열기)
+Sources/main.m              Objective-C 앱 (music:// 열기)
 Resources/Info.plist        앱 정보
 Resources/*.lproj           앱 이름 (한국어: 음악)
 icons/                      아이콘 이미지
