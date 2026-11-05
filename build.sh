@@ -1,8 +1,10 @@
 #!/bin/sh
-# Builds build/MusicLauncher.ipa: an app that opens Apple Music through music://.
+# Builds build/MusicLauncher.ipa, the Music icon app. By default it quits the moment it starts and a
+# Shortcuts automation opens Apple Music; with DIRECT_OPEN=1 it opens Apple Music itself through music://.
 # The result is only ad-hoc signed, so sign it again (Feather, AltStore, Sideloadly...) before installing.
 #
-#   ./build.sh                          # bundle id com.MACHU.MusicLauncher
+#   ./build.sh                          # bundle id com.MACHU.MusicLauncher, automation mode
+#   DIRECT_OPEN=1 ./build.sh            # opens music:// by itself
 #   BUNDLE_ID=com.example.Music ./build.sh
 set -e
 cd "$(dirname "$0")"
@@ -50,7 +52,7 @@ cat > "$OUT/Assets.xcassets/LaunchBlack.colorset/Contents.json" <<'JSON'
 JSON
 
 SDK=$(xcrun --sdk iphoneos --show-sdk-path)
-xcrun --sdk iphoneos clang -fobjc-arc -O2 \
+xcrun --sdk iphoneos clang -fobjc-arc -O2 ${DIRECT_OPEN:+-DDIRECT_OPEN} \
 	-target "arm64-apple-ios$MIN_IOS" -isysroot "$SDK" \
 	-framework UIKit Sources/main.m -o "$APP/MusicLauncher"
 
